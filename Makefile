@@ -6,12 +6,12 @@
 #    By: averheij <averheij@student.codam.nl>         +#+                      #
 #                                                    +#+                       #
 #    Created: 2020/06/05 12:48:29 by averheij      #+#    #+#                  #
-#    Updated: 2020/06/05 15:49:07 by averheij      ########   odam.nl          #
+#    Updated: 2020/06/05 17:47:38 by averheij      ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	=	libasm.a
-SFILES	=	ft_strlen.S ft_strcpy.S
+SFILES	=	ft_strlen.S ft_strcpy.S ft_strcmp.S
 OFILES	=	$(SFILES:%.S=%.o)
 ASMCC	=	nasm -felf64
 #ASMCC	=	nasm -fmacho64

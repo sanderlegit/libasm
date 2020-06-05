@@ -8,11 +8,11 @@ l:
 	mov	al, byte[rsi]
 	mov byte[rdi], al
 	cmp byte[rsi], 0
-	je e
+	je le
 	inc	rsi
 	inc rdi
 	jmp l
-e:
+le:
 	pop rsi
 	pop rdi
 	mov rax, rdi

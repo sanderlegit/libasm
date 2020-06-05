@@ -6,10 +6,10 @@ ft_strlen:
 	mov rax, 0
 l:
 	cmp byte[rdi], 0
-	je e
+	je le
 	inc rdi
 	inc rax
 	jmp l
-e:
+le:
 	pop rdi
 	ret
