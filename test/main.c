@@ -6,7 +6,7 @@
 /*   By: averheij <averheij@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/06/05 12:48:35 by averheij      #+#    #+#                 */
-/*   Updated: 2020/06/05 17:50:57 by averheij      ########   odam.nl         */
+/*   Updated: 2020/06/06 15:49:57 by averheij      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,7 @@ int	main()
 	fail += strcmp_test("its me", "its me your friend");
 	fail += strcmp_test("abdc", "abcc");
 	fail += strcmp_test("ABBA", "ABZA");
+	fail += strcmp_test("ABZA", "ABBA");
 	//create a random nlength string, copy rand n chars to second string, add n random chars to end of second string
 
 	if (fail)

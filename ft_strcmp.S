@@ -7,8 +7,7 @@ ft_strcmp:
 l:
 	mov al, byte[rdi]
 	cmp byte[rsi], al
-	jg gr8r
-	jl less
+	jne le
 	cmp byte[rsi], 0
 	jne lc
 	mov rax, 0
@@ -17,11 +16,12 @@ lc:
 	inc	rsi
 	inc rdi
 	jmp l
-gr8r:
-	mov rax, 1
-	jmp r
-less:
-	mov rax, -1
+le:
+	mov rax, 0
+	mov al, byte[rdi]
+	mov r8, 0
+	mov r8b, byte[rsi]
+	sub rax, r8
 r:
 	pop rsi
 	pop rdi
