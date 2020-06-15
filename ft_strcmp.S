@@ -1,6 +1,8 @@
 section .text
 	global ft_strcmp
 
+; int		ft_strcmp(const char *s1, const char *s2);
+
 ft_strcmp:
 	push rdi
 	push rsi

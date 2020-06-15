@@ -6,31 +6,48 @@
 /*   By: averheij <averheij@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/06/05 12:48:35 by averheij      #+#    #+#                 */
-/*   Updated: 2020/06/06 15:49:57 by averheij      ########   odam.nl         */
+/*   Updated: 2020/06/15 15:21:45 by averheij      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
-#define	PRINT	1
-#define VERBOSE	1
-#define	RTESTS	100
-#define	FAILEXIT	0
-#define SIZE		999999
+#include <errno.h>
+#include "test.h"
 
-extern size_t	ft_strlen(const char *str);
-extern char		*ft_strcpy(char *dest, const char *src);
-extern int		ft_strcmp(const char *s1, const char *s2);
+
+int		open_safe(char *filename, int mode, int priv)
+{
+	int		fd;
+
+	fd = open(filename, mode|O_CREAT, priv);
+	if (fd == -1)
+		fd = open(filename, mode, priv);
+	if (fd == -1)
+		error_out("Failed to open fd");
+	return fd;
+}
+
+void	close_safe(int fd)
+{
+	if (close(fd) == -1)
+		error_out("Failed to close fd");
+}
 
 void	error_out(char *str)
 {
-	printf("%s\n", str);
+	/*printf("%s\n", str);*/
+	perror(str);
 	exit(1);
 }
 
-int		rand_in_range(int min, int max)
+long long	rand_in_range(long long min, long long max)
 {
 	return (rand() % (max + 1 - min) + min);
 }
@@ -39,123 +56,90 @@ char	*randa_nfill(char *arr, size_t n)
 {
 	size_t	i;
 
+	bzero(arr, n);
 	i = 0;
 	while (i < n - 1)
 	{
 		arr[i] = rand_in_range(32, 127);
 		i++;
 	}
-	arr[i] = '\0';
 	return (arr);
 }
 
-int		strlen_test(char *str)
-{
-	size_t	sys;
-	size_t	ft;
-
-	sys = strlen(str);
-	ft = ft_strlen(str);
-	printf("%-6lu %-6lu: %d, %-62.62s\n", sys, ft, sys == ft, str);
-	if (FAILEXIT && sys != ft)
-		error_out("Failed strlen test");
-	return (!(sys == ft));
-}
-
-int		strcpy_test(char *dest, const char *src, size_t size)
-{
-	char 	*ret;
-	int		fail;
-	int		cmp;
-
-	fail = 0;
-	bzero(dest, SIZE);
-	ret = ft_strcpy(dest, src);
-	cmp = strcmp(dest, src);
-	if (cmp)
-		fail = 1;
-	else if (ret != dest)
-		fail = 1;
-	printf("%-6lu %-3d %d   : %d, %-61.61s\n", size, cmp, ret == dest, !fail, dest);
-	if (FAILEXIT && fail)
-		error_out("Failed strcpy test");
-	return (fail);
-}
-
-int		strcmp_test(const char *s1, const char *s2)
-{
-	int 	sys;
-	int		ft;
-
-	sys = strcmp(s1, s2);
-	ft = ft_strcmp(s1, s2);
-	printf("%-3d %-3d: %d, %-33.33s| %-33.33s\n", sys, ft, sys == ft, s1, s2);
-	if (FAILEXIT && sys != ft)
-		error_out("Failed strcpy test");
-	return (sys != ft);
-}
-
-
-int	main()
+int		main()
 {
 	char	*buf;
 	char	*buf2;
-	size_t	size;
+	char	*buf3;
 	size_t	testsize;
-	int		i;
 	int		fail;
+	//Array of max len values to loop over as SIZE for random tests
+
+	ssize_t	ret;
 
 	fail = 0;
-	size = SIZE;
-	printf("buf max: %lu\n", size);
-	buf = calloc(size, sizeof(char));
-	if (!buf)
-		error_out("Buf alloc failed");
-	buf2 = calloc(size, sizeof(char));
-	if (!buf2)
+	printf("buf max: %d\n", SIZE);
+	buf = calloc(SIZE, sizeof(char));
+	buf2 = calloc(SIZE, sizeof(char));
+	buf3 = calloc(SIZE, sizeof(char));
+	if (!buf || !buf2 || !buf3)
 		error_out("Buf alloc failed");
 
-	//STRLEN TESTS
+	//strlen tests
 	printf("\n\t\t\t------strlen tests------\n");
 	printf("sys == ft    : ?, str\n");
 	fail += strlen_test("");
 	fail += strlen_test("S");
 	fail += strlen_test("wow they're getting pretty crazy now &!@#$");
-	fail += strlen_test("this is as long as we can get without line breaks still norm");
-	fail += strlen_test(randa_nfill(buf, size));
-	i = 0;
-	while (i < RTESTS)
-	{
-		fail += strlen_test(randa_nfill(buf, rand_in_range(0, size)));
-		i++;
-	}
+	fail += strlen_test("this is as long as we can get a string and stillnorm");
+	fail += strlen_test(randa_nfill(buf, SIZE));
+	strlen_test_rand(buf, &fail, SIZE);
 
-	//STRCPY TESTS
+	//strcpy tests
 	printf("\n\t\t\t------strcpy tests------\n");
 	printf("len    cmp ret : ?, str\n");
 	fail += strcpy_test(buf2, strcpy(buf, ""), 0);
 	fail += strcpy_test(buf2, strcpy(buf, "S"), 1);
-	fail += strcpy_test(buf2, randa_nfill(buf, size), size);
-	i = 0;
-	while (i < RTESTS)
-	{
-		testsize = rand_in_range(0, size);
-		fail += strcpy_test(buf2, randa_nfill(buf, testsize), testsize);
-		i++;
-	}
+	fail += strcpy_test(buf2, randa_nfill(buf, SIZE), SIZE);
+	strcpy_test_rand(buf, buf2, &fail, SIZE);
 
-	//STRCMP
+	//strcmp tests
 	printf("\n\t\t\t------strcmp tests------\n");
-	printf("sys ft : ?, s1						s2\n");
+	printf("sys ft : ?, s1				     s2\n");
+	fail += strcmp_test("", "");
+	fail += strcmp_test("S", "S");
+	fail += strcmp_test("", "S");
+	fail += strcmp_test("Q", "S");
+	fail += strcmp_test("Q", "");
 	fail += strcmp_test("hello", "hello");
 	fail += strcmp_test("its me", "its me your friend");
 	fail += strcmp_test("abdc", "abcc");
 	fail += strcmp_test("ABBA", "ABZA");
 	fail += strcmp_test("ABZA", "ABBA");
-	//create a random nlength string, copy rand n chars to second string, add n random chars to end of second string
+	strcmp_test_rand(buf, buf2, &fail, SIZE);
+
+	//write tests
+	printf("\n\t\t\t------write tests-------\n");
+	printf("ret           errno       str\n");
+	printf("sys    ft     sys ft : ?  sys			      ft\n");
+	fail += write_fd_test(-1, buf, buf2);
+	fail += write_fd_test(0, buf, buf2);
+	fail += write_fd_test(1, buf, buf2);
+	fail += write_fd_test(2, buf, buf2);
+	fail += write_test(strcpy(buf, ""), buf2, buf3, 0);
+	fail += write_test(strcpy(buf, "b"), buf2, buf3, 1);
+	fail += write_test(randa_nfill(buf, SIZE), buf2, buf3, SIZE);
+	write_test_rand(buf, buf2, buf3, &fail, SIZE);
+
+	//read tests
+	printf("\n\t\t\t------read tests--------\n");
+	printf("ret           errno       str\n");
+	printf("sys    ft     sys ft : ?  sys			      ft\n");
+	fail += read_test(strcpy(buf, "read test numero uno"), buf2, buf3, 20);
+	read_test_rand(buf, buf2, buf3, &fail, SIZE);
 
 	if (fail)
-		printf("Boo, you failed some tests! :(\n");
+		printf("Boo, you failed %d tests! :(\n", fail);
 	else
 		printf("Everything passed! :))\n");
 
