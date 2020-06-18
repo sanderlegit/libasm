@@ -1,17 +1,28 @@
+; **************************************************************************** ;
+;                                                                              ;
+;                                                         ::::::::             ;
+;    ft_strlen.S                                        :+:    :+:             ;
+;                                                      +:+                     ;
+;    By: averheij <averheij@student.codam.nl>         +#+                      ;
+;                                                    +#+                       ;
+;    Created: 2020/06/17 11:49:48 by averheij      #+#    #+#                  ;
+;    Updated: 2020/06/17 11:49:48 by averheij      ########   odam.nl          ;
+;                                                                              ;
+; **************************************************************************** ;
+
 section .text
-	global ft_strlen
+	global _ft_strlen
 
 ; size_t	ft_strlen(const char *str);
 
-ft_strlen:
-	push rdi
-	mov rax, 0
-l:
-	cmp byte[rdi], 0
-	je le
-	inc rdi
-	inc rax
-	jmp l
-le:
-	pop rdi
+_ft_strlen:
+	push rdi				; prologue
+	mov rax, 0				; initialize counter
+_l:
+	cmp byte[rdi + rax], 0	; check for null terminator
+	je _le
+	inc rax					; incr counter
+	jmp _l
+_le:
+	pop rdi					; epilogue
 	ret

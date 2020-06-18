@@ -1,33 +1,39 @@
 ; **************************************************************************** ;
 ;                                                                              ;
 ;                                                         ::::::::             ;
-;    ft_strcpy.S                                        :+:    :+:             ;
+;    ft_strdup.S                                        :+:    :+:             ;
 ;                                                      +:+                     ;
 ;    By: averheij <averheij@student.codam.nl>         +#+                      ;
 ;                                                    +#+                       ;
-;    Created: 2020/06/17 11:49:38 by averheij      #+#    #+#                  ;
-;    Updated: 2020/06/17 11:49:38 by averheij      ########   odam.nl          ;
+;    Created: 2020/06/18 13:28:31 by averheij      #+#    #+#                  ;
+;    Updated: 2020/06/18 13:28:31 by averheij      ########   odam.nl          ;
 ;                                                                              ;
 ; **************************************************************************** ;
 
 section .text
-	global _ft_strcpy
+	global _ft_strdup
 
-; char		*ft_strcpy(char *dest, const char *src);
+extern _ft_strlen
+extern _ft_strcpy
+extern malloc
 
-_ft_strcpy:
-	push rdi			; prologue
-	push rsi
-_l:
-	mov	al, byte[rsi]	; copy char
-	mov byte[rdi], al
-	cmp byte[rsi], 0	; check for null term
-	je _le
-	inc	rsi				; incr ptrs
-	inc rdi
-	jmp _l
-_le:
-	pop rsi				; epilogue
-	pop rdi
-	mov rax, rdi		; return dest
+; char *strdup(const char *s);
+
+_ft_strdup:
+	push rsi		; prologue
+	push rdi
+	call _ft_strlen	; count *s
+	inc	rax			; + '\0'
+	mov rdi, rax	; count to arg reg
+	call malloc
+	cmp	rax, 0		; check fail
+	je _error
+	mov rdi, rax	; copy into dest
+	mov rsi, [rsp]
+	call _ft_strcpy
+	pop rdi			; epilogue
+	pop rsi
+	ret
+_error:
+	mov rax, 0		; return null
 	ret
