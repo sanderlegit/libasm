@@ -22,7 +22,7 @@ _ft_read:
 	mov rax, 0		; syscall read
 	syscall
 	cmp rax, 0		; check for error
-	jge _r
+	jge _r			; use jc if this doesnt work on mac
 	neg rax			; invert error
 	push rax		; sto value to save in errno
     ;push rbp
