@@ -13,8 +13,7 @@
 section .text
 	global _ft_write
 
-extern __errno_location
-;extern __error
+extern __error
 ; ssize_t	ft_write(int fd, const void *buf, size_t count);
 
 _ft_write:
