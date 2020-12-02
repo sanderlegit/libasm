@@ -19,15 +19,14 @@ extern __errno_location
 
 _ft_write:
 	push rdi		; prologue
-	mov rax, 1		; syscall write
+	mov rax, 0x2000004; syscall write
 	syscall
 	cmp rax, 0		; check for error
 	jge _r
 	neg rax			; invert error
 	push rax		; sto value to save in errno
     ;push rbp
-    ;call __error	; errno pointer in rax
-    call __errno_location
+	call __error	; errno pointer in rax
 	;pop rbp
 	pop	rdi
 	mov [rax], edi	; pop error into errno
